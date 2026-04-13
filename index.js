@@ -6,7 +6,7 @@ const historia = {
   inicio: {
     audio: "./src/inicio.mp3",
     opciones: [
-      { texto: "No", siguiente: "inicio" }, // bucle
+      { texto: "No", siguiente: "final" }, // bucle
       { texto: "Sí", siguiente: "parte2" }
     ]
   },
