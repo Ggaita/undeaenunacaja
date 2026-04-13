@@ -20,7 +20,7 @@ const historia = {
   },
 
   final: {
-    audio: "final.mp3",
+    audio: "./src/tililili.mp3",
     opciones: []
   }
 };
