@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="style.css">
+    <link type="text/css" rel="stylesheet" href="styles.css">
+    <link type="text/css" rel="stylesheet" href="reset.css">
     <title>noesunsimuladorDea</title>
 </head>
 <body>
+    <header>
+        <h1>No es un simulador de DEA cualquiera</h1>
+    </header>
     <main>
-        <button onclick="empezar()">Iniciar</button>
-        <div id="opciones"></div>
-        <audio id="audio"></audio>       
+        <button id="btnInicio" onclick="empezar()">Iniciar</button>
+        <div id="opciones" style="display:none;"></div>
+        <audio id="audio"></audio>
+        <button id="btnReiniciar" onclick="reiniciar()" style="display:none;">Reiniciar</button>       
     </main>
+    <footer>
+        <p>Desarrollado por CODES</p> 
+    </footer>
 
     
 

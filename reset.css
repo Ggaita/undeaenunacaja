@@ -1,0 +1,48 @@
+/* RESET BÁSICO MODERNO */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Evita scroll raro horizontal */
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+/* Tipografía base limpia */
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  background-color: #333;
+}
+
+/* Imágenes responsivas */
+img, picture, video, canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* Formularios consistentes */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* Evita estilos raros en botones */
+button {
+  cursor: pointer;
+}
+
+/* Links sin estilo por defecto */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Listas limpias */
+ul, ol {
+  list-style: none;
+}

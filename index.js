@@ -1,12 +1,14 @@
 const audio = document.getElementById("audio");
 const opcionesDiv = document.getElementById("opciones");
+const btnInicio = document.getElementById("btnInicio");
+const btnReiniciar = document.getElementById("btnReiniciar");
 
-// 🌳 Árbol de decisiones
+// 🌳 estados
 const historia = {
-  inicio: {
+  inicioOpciones: {
     audio: "./src/inicio.mp3",
     opciones: [
-      { texto: "No", siguiente: "final" }, // bucle
+      { texto: "No", siguiente: "inicioOpciones" },
       { texto: "Sí", siguiente: "parte2" }
     ]
   },
@@ -14,36 +16,33 @@ const historia = {
   parte2: {
     audio: "./src/semiautomatico.mp3",
     opciones: [
-      { texto: "No", siguiente: "inicio" },
+      { texto: "No", siguiente: "inicioOpciones" },
       { texto: "Sí", siguiente: "final" }
     ]
   },
 
   final: {
-    audio: "./src/tililili.mp3",
+    audio: "./src/final.mp3",
     opciones: []
   }
 };
 
-let estadoActual = "inicio";
+let estadoActual = "inicioOpciones";
 
-// 🔊 reproducir audio
+// 🔊 reproducir
 function reproducir(src) {
   audio.src = src;
   audio.currentTime = 0;
   audio.play();
 }
 
-// 🔄 cambiar de estado
-function cambiarEstado(nuevoEstado) {
-  estadoActual = nuevoEstado;
+// 🔄 cambiar estado
+function cambiarEstado(estado) {
+  estadoActual = estado;
+  const nodo = historia[estado];
 
-  const nodo = historia[estadoActual];
-
-  // reproducir audio
   reproducir(nodo.audio);
 
-  // mostrar botones
   opcionesDiv.innerHTML = "";
 
   nodo.opciones.forEach(op => {
@@ -56,5 +55,14 @@ function cambiarEstado(nuevoEstado) {
 
 // ▶️ iniciar
 function empezar() {
-  cambiarEstado("inicio");
+  btnInicio.style.display = "none";
+  opcionesDiv.style.display = "block";
+  btnReiniciar.style.display = "block";
+
+  cambiarEstado("inicioOpciones");
+}
+
+// 🔁 reiniciar (NO vuelve al botón inicial)
+function reiniciar() {
+  cambiarEstado("inicioOpciones");
 }
