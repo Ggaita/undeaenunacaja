@@ -69,7 +69,15 @@ const historia = {
     audio: "./src/descargaNecesaria.mp3",
     opciones: [
       { texto: "NO Siguen Indicaciones", siguiente: "ritmoDesfibrilable", clase: "btn-rojo" },
-      { texto: "Siguen Indicaciones", siguiente: "metronomo", clase:"btn-verde" }
+      { texto: "Siguen Indicaciones", siguiente: "continuaRcp", clase:"btn-verde" }
+    ]
+  },
+
+  continuaRcp: {
+    audio: "./src/descargaRealizada.mp3",
+    opciones: [
+      { texto: "No Siguen la RCP", siguiente: "continuaRcp", clase: "btn-rojo" },
+      { texto: "Síguen la RCP", siguiente: "metronomo", clase:"btn-verde" }
     ]
   },
 
