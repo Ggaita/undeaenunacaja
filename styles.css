@@ -30,6 +30,18 @@ button {
     height: auto;
 }
 
+.btn-rojo {
+  background-color: red;
+  color: white;
+}
+
+.btn-verde {
+  background-color: green;
+  color: white;
+}
+
+
+
 footer {
         background-color: #333;
     color: white;
