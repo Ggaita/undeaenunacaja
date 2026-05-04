@@ -1,14 +1,19 @@
 
-
+/* Estilos para el simulador de DEA */
 
 header {
     background-color: #f0e2e20a;
-    color: white;
-    padding: 20px;
+
     display: flex;
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid #6c7d8f;
+}
+
+.logoheader{
+    width: 20vw;
+    height: auto;
+    margin: auto;
 }
 
 main {
@@ -100,6 +105,18 @@ footer {
     justify-content: space-between;
     border-top: 1px solid #6c7d8f;
 }
+
+
+#updateBanner button {
+  margin-left: 10px;
+  background: #4caf50;
+  border: none;
+  padding: 5px 10px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Estilos para dispositivos móviles */
 
 @media (max-width: 500px) {
 

@@ -237,3 +237,39 @@ function empezar() {
 function reiniciar() {
   cambiarEstado("inicio");
 }
+
+
+let newWorker;
+
+// registrar service worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js")
+    .then(reg => {
+
+      reg.addEventListener("updatefound", () => {
+        newWorker = reg.installing;
+
+        newWorker.addEventListener("statechange", () => {
+          if (
+            newWorker.state === "installed" &&
+            navigator.serviceWorker.controller
+          ) {
+            // 👉 mostrar cartel
+            document.getElementById("updateBanner").style.display = "block";
+          }
+        });
+      });
+    });
+
+  // recargar cuando cambia
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
+}
+
+// botón actualizar
+function actualizarApp() {
+  if (newWorker) {
+    newWorker.postMessage("SKIP_WAITING");
+  }
+}
