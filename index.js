@@ -3,6 +3,11 @@ const opcionesDiv = document.getElementById("opciones");
 const btnInicio = document.getElementById("btnInicio");
 const btnReiniciar = document.getElementById("btnReiniciar");
 const textoEstado = document.getElementById("textoEstado");
+const contenedorTimer = document.getElementById("contenedorTimer");
+const barraProgreso = document.getElementById("barraProgreso");
+const tiempoRestante = document.getElementById("tiempoRestante");
+
+let animacionTimer;
 
 // COMIENZO Spech Synthesis
 const historia = {
@@ -180,6 +185,55 @@ function reproducir(src) {
   audio.play();
 }
 
+function iniciarTemporizador() {
+
+  contenedorTimer.style.display = "block";
+  tiempoRestante.style.display = "block";
+
+  cancelAnimationFrame(animacionTimer);
+
+  function actualizar() {
+
+    const duracion = audio.duration || 120;
+
+    const actual = audio.currentTime;
+
+    const restante = duracion - actual;
+
+    const porcentaje = (restante / duracion) * 100;
+
+    barraProgreso.style.width = porcentaje + "%";
+
+    const minutos = Math.floor(restante / 60);
+    const segundos = Math.floor(restante % 60);
+
+    tiempoRestante.textContent =
+      `${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+
+    // cambio de color según tiempo
+    if (porcentaje > 50) {
+      barraProgreso.style.background = "#00c853";
+    } else if (porcentaje > 20) {
+      barraProgreso.style.background = "#ffd600";
+    } else {
+      barraProgreso.style.background = "#d50000";
+    }
+
+    if (!audio.paused && restante > 0) {
+      animacionTimer = requestAnimationFrame(actualizar);
+    }
+  }
+
+  actualizar();
+}
+
+function ocultarTemporizador() {
+  contenedorTimer.style.display = "none";
+  tiempoRestante.style.display = "none";
+}
+
+
+
 // cambiar estado
 function cambiarEstado(estado) {
   estadoActual = estado;
@@ -196,18 +250,35 @@ function cambiarEstado(estado) {
   }
 
 
-  //  SOLO  metronomo
-  if (estado === "metronomo") {
-    audio.onended = () => {
-      cambiarEstado("analisisRitmo");
-    };
-  } else if (estado === "metronomoAutomatico") {
-    audio.onended = () => {
-      cambiarEstado("analisisRitmoAutomatico");
-    };
-  } else {
-    audio.onended = null; 
-  }
+ // SOLO metrónomo + temporizador
+if (estado === "metronomo") {
+
+  iniciarTemporizador();
+
+  audio.onended = () => {
+
+    ocultarTemporizador();
+
+    cambiarEstado("analisisRitmo");
+  };
+
+} else if (estado === "metronomoAutomatico") {
+
+  iniciarTemporizador();
+
+  audio.onended = () => {
+
+    ocultarTemporizador();
+
+    cambiarEstado("analisisRitmoAutomatico");
+  };
+
+} else {
+
+  ocultarTemporizador();
+
+  audio.onended = null;
+}
 
 nodo.opciones.forEach(op => {
   const btn = document.createElement("button");
