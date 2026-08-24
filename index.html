@@ -6,30 +6,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link type="text/css" rel="stylesheet" href="styles.css">
     <link type="text/css" rel="stylesheet" href="reset.css">
-    <title>noesunsimuladorDea</title>
+    <title>unDEAenunaCaja</title>
 </head>
 <body>
     <header>
-        <h1>No es un simulador de DEA cualquiera</h1>
+        <img src="./src/titulounDEAenunacaja.webp" alt="Logo de unDEAenunaCaja" id="logo">
     </header>
     <main>
         <button id="btnInicio" onclick="empezar()">Iniciar</button>
+        <p id="textoEstado"></p>
         <div id="opciones" style="display:none;"></div>
         <audio id="audio"></audio>
+        <div id="contenedorTimer">
+            <div id="barraProgreso"></div>
+        </div>
+        <div id="tiempoRestante">02:00</div>
         <button id="btnReiniciar" onclick="reiniciar()" style="display:none;">Reiniciar</button>       
     </main>
     <footer>
-        <p><i>Desarrollado por Argentinos para Argentinos</i></p>
-        <img src="./src/images/Flag_of_Argentina.svg.webp" alt="Bandera de Argentina" width="50">
+        <p>Desarrollado por CODES</p> 
     </footer>
 
     
 
-
+<div id="updateBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#222; color:white; padding:10px; text-align:center;">
+  Nueva versión disponible
+  <button onclick="actualizarApp()">Actualizar</button>
+</div>
 <script src="index.js"></script>
 </body>
 </html>
