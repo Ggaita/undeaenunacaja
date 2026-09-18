@@ -102,7 +102,7 @@ const historia = {
 //INICIO -- Modo Semiautomatico
 
   semiautomatico: {
-    audio: "./src/modoSemiautomático.mp3",
+    audio: "./src/modoSemiautomatico.mp3",
     texto: "Has seleccionado el modo semiautomático. En este modo, tendrás la oportunidad de tomar decisiones en momentos clave de la simulación. Presta atención a las indicaciones y elige la opción adecuada para avanzar en la situación.",
     opciones: [
       { texto: "Comenzar", siguiente: "etapaParches", clase: "btn-opciones" }

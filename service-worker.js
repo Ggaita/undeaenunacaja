@@ -19,7 +19,7 @@ const urlsToCache = [
   "/src/inicio.mp3",
   "/src/metronomo.mp3",
   "/src/modoAutomatico.mp3",
-  "/src/modoSemiautomtico.mp3",
+  "/src/modoSemiautomatico.mp3",
   "/src/opcionesdesimulacion.mp3",
   "/src/ritmoDesfibrilableAutomatico.mp3",
   "/src/src/ritmoNoDesfibrilable.mp3",
