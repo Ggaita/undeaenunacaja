@@ -22,12 +22,14 @@ const urlsToCache = [
   "/src/modoSemiautomatico.mp3",
   "/src/opcionesdesimulacion.mp3",
   "/src/ritmoDesfibrilableAutomatico.mp3",
-  "/src/src/ritmoNoDesfibrilable.mp3",
+  "/src/ritmoNoDesfibrilable.mp3",
 
   //imagenes
   "/src/cajaWeb.webp",
-  "/scr/codesLogo.webp",
+  "/src/codesLogo.webp",
   "src/titulounDEAenunacaja.webp",
+  "/src/images/Flag_of_Argentina.svg.webp",
+  "/manifest.json",
 
   //iconos
   "/icons/icono-192.png",
@@ -67,7 +69,7 @@ self.addEventListener("fetch", event => {
   );
 });
 
-// 👉 recibir mensaje para actualizar
+// recibir mensaje para actualizar
 self.addEventListener("message", event => {
   if (event.data === "SKIP_WAITING") {
     self.skipWaiting();
