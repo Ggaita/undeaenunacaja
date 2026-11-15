@@ -71,11 +71,11 @@ const historia = {
     ]
   },
 
-  ritmoDesfibrilableAutomaico: {
+  ritmoDesfibrilableAutomatico: {
     audio: "./src/ritmoDesfibrilableAutomatico.mp3",
     texto: "¿Siguen las indicaciones luego de la descarga?",
     opciones: [
-      { texto: "NO Siguen Indicaciones", siguiente: "ritmoDesfibrilableAutomaico", clase: "btn-rojo" },
+      { texto: "NO Siguen Indicaciones", siguiente: "ritmoDesfibrilableAutomatico", clase: "btn-rojo" },
       { texto: "Siguen Indicaciones", siguiente: "metronomoAutomatico", clase:"btn-verde" }
     ]
   },

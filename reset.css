@@ -41,7 +41,7 @@ button {
 /* Links sin estilo por defecto */
 a {
   text-decoration: none;
-  color: inherit;
+  color: inherit; 
 }
 
 /* Listas limpias */

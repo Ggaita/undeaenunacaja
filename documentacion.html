@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="styles-documentacion.css">
+    <link rel="icon" type="image/png" href="./src/images/cajaWebIcon.ico">
+    <title>unDEAenunaCaja · Documentación</title>
+</head>
+
+<body>
+
+<div class="pagina">
+
+<header>
+  <a href="./index.html"><img src="./src/images/titulounDEAenunacaja.webp" alt="Logo de unDEAenunaCaja">
+  </a>
+  <p>Documentación técnica · Simulador de DEA / DESA - Aplicación web libre (PWA) · Versión V1.0</p>
+</header>
+
+<nav aria-label="Secciones">
+  <ul>
+    <li><a href="#que-es">Resumen</a></li>
+    <li><a href="#uso">Uso</a></li>
+    <li><a href="#flujos">Flujos</a></li>
+    <li><a href="#temporizador">Temporizador</a></li>
+    <li><a href="#arquitectura">Arquitectura</a></li>
+    <li><a href="#referencia">Código</a></li>
+    <li><a href="#estructura">Estructura</a></li>
+    <li><a href="#extension">Extensión</a></li>
+    <li><a href="#pwa">PWA</a></li>
+    <li><a href="#estilos">Estilos</a></li>
+    <li><a href="#glosario">Glosario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<section id="que-es">
+
+  <h2>Resumen técnico</h2>
+
+  <p><strong>unDEAenunaCaja</strong> es un simulador de Desfibrilador Externo Automático (DEA) y 
+    Semiautomático (DESA) para capacitación en reanimación. Una persona instructora conduce la 
+    simulación con botones; la aplicación reproduce las indicaciones de voz del equipo, muestra 
+    el texto en pantalla y marca los 2 minutos de RCP entre análisis de ritmo.</p>
+
+<div class="tabla">
+  <table>
+    <thead>
+      <tr>
+        <th>Característica</th>
+        <th>Detalle</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tipo</td>
+        <td>Aplicación web estática, instalable como PWA y utilizable sin conexión</td>
+      </tr>
+      <tr>
+        <td>Stack</td>
+        <td>HTML5, CSS3 y JavaScript (ES6+) sin frameworks, sin dependencias y sin paso de compilación</td>
+      </tr>
+      <tr>
+        <td>APIs web</td>
+        <td>HTMLAudioElement, requestAnimationFrame, Service Worker, Cache API, Web App Manifest</td>
+      </tr>
+      <tr>
+        <td>Modelo de ejecución</td>
+        <td>Máquina de estados dirigida por datos: 17 estados definidos en el objeto <code>historia</code>, interpretados por un único motor</td>
+      </tr>
+      <tr>
+        <td>Salida</td>
+        <td>Audio MP3 pregrabado (13 archivos, unos 1,3 MB; <code>metronomo.mp3</code> es el 35 %) y texto en pantalla</td>
+      </tr>
+      <tr>
+        <td>Persistencia</td>
+        <td>Ninguna de la simulación (el estado vive en memoria). El service worker guarda los recursos en caché</td>
+      </tr>
+      <tr>
+        <td>Compatibilidad</td>
+        <td>Chrome, Edge, Firefox y Opera en Windows, Linux y Android; Safari en iOS (limitado)</td>
+      <tr>
+        <td>Licencia</td>
+        <td>GPL v3</td>
+      </tr>
+      <tr>
+        <td>Repositorio</td>
+        <td><a href="https://github.com/Ggaita/undeaenunacaja">github.com/Ggaita/undeaenunacaja</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+<br>
+<br>
+
+  <ol>
+    <li>Tocá <span class="btn opciones">Comenzar</span> y elegí el modo: <span class="btn opciones">Automatico</span> o <span class="btn opciones">Semiautomatico</span>.</li>
+    <li>El equipo brinda indicaciones por voz. Quien instruye responde con los botones según lo que hacen los participantes: <br>
+      <span class="btn verde">verde</span> cuando lo hacen bien, <br>
+      <span class="btn rojo">rojo</span> cuando no, iniciando un bucle.</li>
+    <li>Al tener que iniciar maniobras de RCP aparece la cuenta regresiva de 2 minutos. Al terminar, el equipo vuelve a pedir el análisis de ritmo.</li>
+    <li><span class="btn">Reiniciar</span> vuelve a la pantalla de inicio en cualquier momento, sin recargar la página.</li>
+  </ol>
+
+</section>
+
+<section id="flujos">
+  <h2>Flujos de simulación</h2>
+  <p>Cada pantalla tiene una indicación de voz, un texto y hasta dos botones. <br>
+    El identificador de cada pantalla es la clave que se usa en <code>index.js</code>.</p>
+
+  <h3>Pantallas comunes</h3>
+  <div class="flujo">
+    <div class="pantalla">
+      <div class="id"><code>inicio</code> · audio <code>inicio.mp3</code> (4,8 s)</div>
+      <div class="texto">Dale click a comenzar para iniciar la simulación</div>
+      <div class="destinos"><span class="btn opciones">Comenzar</span> → <code>inicioOpciones</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>inicioOpciones</code> · audio <code>opcionesdesimulacion.mp3</code> (1,8 s)</div>
+      <div class="texto">Opciones de simulación:</div>
+      <div class="destinos"><span class="btn opciones">Automatico</span> → <code>automatico</code> &nbsp; <span class="btn opciones">Semiautomatico</span> → 
+        <code>semiautomatico</code></div>
+    </div>
+  </div>
+
+  <h3>Modo automático</h3>
+
+  <p>El equipo analiza el ritmo y, si corresponde, entrega la descarga por sí solo. 
+    Quien instruye solo indica el ritmo y confirma que los participantes siguen las indicaciones.</p>
+  <div class="flujo">
+    <div class="pantalla">
+      <div class="id"><code>automatico</code> · <code>modoAutomatico.mp3</code></div>
+      <div class="texto">Has seleccionado el modo automático…</div>
+      <div class="destinos"><span class="btn opciones">Comenzar</span> → <code>etapaParchesautomatico</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>etapaParchesautomatico</code> · <code>comienzo.mp3</code> (5,1 s)</div>
+      <div class="texto">¿Colocan los parches correctamente?</div>
+      <div class="destinos"><span class="btn rojo">No</span> → <code>etapaParches2Automatico</code> &nbsp; <span class="btn verde">Sí</span> → <code>
+        analisisRitmoAutomatico</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>etapaParches2Automatico</code> · <code>colocarParches2.mp3</code> (4,6 s)</div>
+      <div class="texto">¿Colocan los parches correctamente?</div>
+      <div class="destinos"><span class="btn rojo">No</span> → se repite &nbsp; <span class="btn verde">Sí</span> → <code>analisisRitmoAutomatico</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>analisisRitmoAutomatico</code> · <code>analizandoRitmo.mp3</code> (3,7 s)</div>
+      <div class="texto">Seleccione Ritmo:</div>
+      <div class="destinos"><span class="btn verde">No Desfibrilable</span> → <code>ritmoNoDesfibrilableAutomatico</code> &nbsp; <span class="btn verde">Desfibrilable</span> → <code>ritmoDesfibrilableAutomaico</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>ritmoDesfibrilableAutomaico</code> · <code>ritmoDesfibrilableAutomatico.mp3</code> (7,8 s)</div>
+      <div class="texto">¿Siguen las indicaciones luego de la descarga?</div>
+      <div class="destinos"><span class="btn rojo">NO Siguen Indicaciones</span> → se repite &nbsp; <span class="btn verde">Siguen Indicaciones</span> → <code>
+        metronomoAutomatico</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>ritmoNoDesfibrilableAutomatico</code> · <code>ritmoNoDesfibrilable.mp3</code> (7,9 s)</div>
+      <div class="texto">¿Siguen la RCP después de la descarga?</div>
+      <div class="destinos"><span class="btn rojo">No Siguen la RCP</span> → se repite &nbsp; <span class="btn verde">Síguen la RCP</span> → <code>
+        metronomoAutomatico</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>metronomoAutomatico</code> · <code>metronomo.mp3</code> (2:00)</div>
+      <div class="texto">Espere los 2 minutos para analizar el ritmo nuevamente</div>
+      <div class="destinos">Sin botones. Al terminar el audio vuelve solo a <code>analisisRitmoAutomatico</code>.</div>
+    </div>
+  </div>
+
+  <h3>Modo semiautomático</h3>
+
+  <p>Igual que el automático, pero con un paso más: cuando el ritmo es desfibrilable, el equipo pide indicar la descarga, y recién después se pasa a la RCP.</p>
+  <div class="flujo">
+    <div class="pantalla">
+      <div class="id"><code>semiautomatico</code> · <code>modoSemiautomatico.mp3</code></div>
+      <div class="texto">Has seleccionado el modo semiautomático…</div>
+      <div class="destinos"><span class="btn opciones">Comenzar</span> → <code>etapaParches</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>etapaParches</code> y <code>etapaParches2</code> · <code>comienzo.mp3</code> / <code>colocarParches2.mp3</code></div>
+      <div class="texto">¿Colocan los parches correctamente?</div>
+      <div class="destinos"><span class="btn rojo">No</span> → <code>etapaParches2</code> (se repite) &nbsp; <span class="btn verde">Sí</span> → <code>analisisRitmo</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>analisisRitmo</code> · <code>analizandoRitmo.mp3</code></div>
+      <div class="texto">Seleccione Ritmo:</div>
+      <div class="destinos"><span class="btn verde">No Desfibrilable</span> → <code>ritmoNoDesfibrilable</code> &nbsp; <span class="btn verde">Desfibrilable</span> → <code>ritmoDesfibrilable</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>ritmoDesfibrilable</code> · <code>descargaNecesaria.mp3</code> (5,0 s)</div>
+      <div class="texto">¿Siguen las indicaciones para la descarga?</div>
+      <div class="destinos"><span class="btn rojo">NO Siguen Indicaciones</span> → se repite &nbsp; <span class="btn verde">Siguen Indicaciones</span> → <code>continuaRcp</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>continuaRcp</code> · <code>descargaRealizada.mp3</code> (7,5 s)</div>
+      <div class="texto">¿Siguen la RCP después de la descarga?</div>
+      <div class="destinos"><span class="btn rojo">No Siguen la RCP</span> → se repite &nbsp; <span class="btn verde">Síguen la RCP</span> → <code>metronomo</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>ritmoNoDesfibrilable</code> · <code>ritmoNoDesfibrilable.mp3</code></div>
+      <div class="texto">¿Siguen la RCP después de la descarga?</div>
+      <div class="destinos"><span class="btn rojo">No Siguen la RCP</span> → se repite &nbsp; <span class="btn verde">Síguen la RCP</span> → <code>metronomo</code></div>
+    </div>
+    <div class="pantalla">
+      <div class="id"><code>metronomo</code> · <code>metronomo.mp3</code> (2:00)</div>
+      <div class="texto">Espere los 2 minutos para analizar el ritmo nuevamente</div>
+      <div class="destinos">Sin botones. Al terminar el audio vuelve solo a <code>analisisRitmo</code>.</div>
+    </div>
+  </div>
+</section>
+
+<section id="temporizador">
+
+  <h2>Metrónomo y temporizador</h2>
+
+  <p>En las pantallas <code>metronomo</code> y <code>metronomoAutomatico</code> se reproduce <code>metronomo.mp3</code>, que dura 2 minutos y 
+    marca el ritmo de las compresiones. Mientras suena aparece la barra de progreso y el tiempo restante (<code>MM:SS</code>).</p>
+  <p>La cuenta regresiva sale del propio audio: <code>restante = duración − tiempo actual</code>. 
+    Si el navegador todavía no conoce la duración, usa 120 segundos. El color de la barra cambia según el tiempo que queda:</p><br>
+  <div class="tabla">
+    <table>
+    <thead>
+      <tr>
+        <th>Tiempo restante</th>
+        <th>Color</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Más del 50 %</td>
+        <td>Verde <code>#00c853</code></td>
+      </tr>
+      <tr>
+        <td>Entre 50 % y 20 %</td>
+        <td>Amarillo <code>#ffd600</code></td>
+      </tr>
+      <tr>
+        <td>Menos del 20 %</td>
+        <td>Rojo <code>#d50000</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<br>
+  <div class="barra" aria-hidden="true"><div style="width:100%;background:linear-gradient(90deg,#00c853 0 50%,#ffd600 50% 80%,#d50000 80%)"></div></div>
+<br>  
+  <p>Cuando el audio termina (evento <code>audio.onended</code>) se oculta el temporizador y la aplicación pasa sola a la pantalla de análisis de ritmo del modo en curso.</p>
+</section>
+
+
+<section id="arquitectura">
+  <h2>Arquitectura</h2>
+
+  <p>El diseño separa los <strong>datos</strong> (qué dice y a dónde va cada pantalla) del <strong>motor</strong> 
+    (cómo se reproduce y se dibuja). Agregar o cambiar pantallas es editar un objeto, sin tocar la lógica; 
+    la excepción son los dos metrónomos, que están escritos en el motor (ver Extensión).</p>
+
+<div class="tabla"><table>
+  <thead>
+    <tr>
+      <th>Capa</th>
+      <th>Dónde</th>
+      <th>Responsabilidad</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Presentación</td>
+      <td><code>index.html</code>, <code>documentacion.html</code>, <code>styles-documentacion.css</code>, <code>styles.css</code>, <code>reset.css</code></td>
+      <td>DOM fijo; los botones de respuesta se crean dinámicamente en cada estado</td>
+    </tr>
+    <tr>
+      <td>Datos</td>
+      <td>Objeto <code>historia</code> (index.js, líneas 13 a 173)</td>
+      <td>Grafo dirigido de 17 estados: audio, texto y opciones con su destino</td>
+    </tr>
+    <tr>
+      <td>Motor</td>
+      <td><code>cambiarEstado</code>, <code>reproducir</code>, temporizador</td>
+      <td>Interpreta un estado: reproduce el audio, escribe el texto, crea los botones y controla el temporizador</td>
+    </tr>
+    <tr>
+      <td>PWA</td>
+      <td><code>service-worker.js</code>, <code>manifest.json</code>, registro en index.js</td>
+      <td>Instalación, caché sin conexión y aviso de actualización</td>
+    </tr>
+    <tr>
+      <td>Recursos</td>
+      <td><code>src/</code>, <code>icons/</code></td>
+      <td>Audios, logos, bandera e íconos</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+  <h3>Ciclo de vida de la página</h3>
+  <ol class="lista">
+    <li>Carga: se muestra el botón <em>Iniciar</em>. Todavía no suena
+     nada porque los navegadores exigen un gesto del usuario antes de reproducir audio.</li>
+     <li>Se registra el service worker (<code>service-worker.js</code>) y se instala la caché.</li>
+     <li><em>Iniciar</em> ejecuta <code>empezar()</code>: oculta ese botón, muestra <code>#opciones</code> y <code>#btnReiniciar</code>, y entra en
+       el estado <code>inicio</code>.</li>
+     <li>Cada botón de respuesta llama a <code>cambiarEstado(siguiente)</code>. Las únicas transiciones sin botón son las de fin de metrónomo, que 
+      dispara el evento <code>ended</code> del audio.</li>
+    </ol>
+
+
+  <h3>Qué hace cambiarEstado(clave)</h3>
+  
+  <ol class="lista">
+    <li>Guarda <code>estadoActual = clave</code> y obtiene <code>historia[clave]</code>. Si la clave no existe, el nodo es <code>undefined</code> y 
+      la función lanza un error: la aplicación deja de responder.</li>
+    <li>Reproduce <code>nodo.audio</code> desde el segundo 0.</li>
+    <li>Vacía <code>#opciones</code> y escribe <code>nodo.texto</code> con <code>textContent</code> (cadena vacía si el nodo no tiene texto).</li>
+    <li>Si la clave es <code>metronomo</code> o <code>metronomoAutomatico</code>: muestra el temporizador y define <code>audio.onended</code> para
+     volver al análisis de ritmo de su modo. En cualquier otro estado oculta el temporizador y pone <code>audio.onended = null</code>.</li>
+    <li>Crea un <code>&lt;button&gt;</code> por cada opción, con su clase CSS, y le asigna <code>onclick = () =&gt; cambiarEstado(op.siguiente)</code>.</li>
+  </ol>
+
+</section>
+
+<section id="referencia">
+
+  <h2>Referencia del código (index.js)</h2>
+
+  <p>Los números de línea corresponden a la revisión <code>3e1b788</code>. El script se carga como archivo clásico (sin módulos) 
+    para que los atributos <code>onclick</code> del HTML encuentren las funciones en el ámbito global.</p>
+
+  <h3>Funciones</h3>
+
+  <div class="tabla">
+    <table>
+      <thead>
+        <tr>
+          <th>Función</th>
+          <th>Líneas</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>reproducir(src)</code></td>
+          <td>182–186</td>
+          <td>Asigna <code>audio.src</code>, pone <code>currentTime = 0</code> y llama a <code>audio.play()</code>. La promesa que devuelve <code>play()</code> no se captura.</td>
+        </tr>
+        <tr>
+          <td><code>iniciarTemporizador()</code></td>
+          <td>188–228</td>
+          <td>Muestra la barra y el tiempo, cancela el cuadro de animación anterior y ejecuta <code>actualizar()</code>, que se reprograma con <code>requestAnimationFrame</code> mientras el audio suene y quede tiempo.</td>
+        </tr>
+        <tr>
+          <td><code>ocultarTemporizador()</code></td>
+          <td>230–233</td>
+          <td>Pone <code>display: none</code> en la barra y en el tiempo restante.</td>
+        </tr>
+        <tr>
+          <td><code>cambiarEstado(estado)</code></td>
+          <td>238–295</td>
+          <td>Motor de la máquina de estados (ver Arquitectura).</td>
+        </tr>
+        <tr>
+          <td><code>empezar()</code></td>
+          <td>298–304</td>
+          <td>Primera entrada: oculta <code>#btnInicio</code>, muestra <code>#opciones</code> y <code>#btnReiniciar</code>, entra en <code>inicio</code>.</td>
+        </tr>
+        <tr>
+          <td><code>reiniciar()</code></td>
+          <td>308–310</td>
+          <td>Vuelve al estado <code>inicio</code>. No recarga la página ni vuelve a mostrar el botón Iniciar.</td>
+        </tr>
+        <tr>
+          <td>Registro del service worker</td>
+          <td>313–339</td>
+          <td>Registra <code>service-worker.js</code>, escucha <code>updatefound</code> y muestra <code>#updateBanner</code> si hay una versión nueva instalada y ya había un worker activo. En <code>controllerchange</code> recarga la página.</td>
+        </tr>
+        <tr>
+          <td><code>actualizarApp()</code></td>
+          <td>342–346</td>
+          <td>Si hay un worker nuevo en espera, le envía el mensaje <code>&quot;SKIP_WAITING&quot;</ code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Variables globales</h3>
+
+  <div class="tabla">
+    <table>
+
+      <!-- Table content -->
+    </table>
+
+  </div>
+
+  <!-- Elementos del DOM (index.html) -->
+ 
+
+<pre><code>undeaenunacaja/
+├── index.html                Página única (43 líneas)
+├── documentacion.html        Documentación (100 líneas)
+├── index.js                  Datos (historia), motor, temporizador, registro del service worker
+├── styles-documentacion.css  Estilos de la documentación
+├── styles.css                Estilos del simulador
+├── reset.css                 Reset y ancho máximo de 1024 px
+├── service-worker.js         Precaché, estrategia cache-first, actualización
+├── manifest.json             Datos de instalación de la PWA
+├── icons/                    icono-192.png, icono-512.png
+├── src/                      13 audios .mp3, logos y bandera (src/images/)
+├── LICENSE                   GPL v3
+└── README.md</code></pre>
+
+<ul class="lista">
+  <li>No hay carpeta de compilación ni <code>package.json</code>: el repositorio es lo que se publica.</li>
+  <li>Para publicar basta un servidor de archivos estáticos con HTTPS (por ejemplo GitHub Pages). 
+    Los service workers solo funcionan en HTTPS.</li>
+</ul>
+</section>
+
+<section id="extension">
+
+  <h2>Modelo de datos y extensión</h2>
+
+  <p>Cada estado es una entrada del objeto <code>historia</code>. La clave es el identificador del estado.</p>
+<pre><code>nombreDelEstado: {
+  audio: &quot;./src/archivo.mp3&quot;,
+  texto: &quot;Texto que se muestra&quot;,
+  opciones: [
+    { texto: &quot;Sí&quot;, siguiente: &quot;otroEstado&quot;, clase: &quot;btn-verde&quot; },
+    { texto: &quot;No&quot;, siguiente: &quot;nombreDelEstado&quot;, clase: &quot;btn-rojo&quot; }
+  ]
+}</code></pre><div class="tabla">
+  <table>
+    <thead>
+      <tr>
+        <th>Campo</th>
+        <th>Tipo</th>
+        <th>Obligatorio</th>
+        <th>Regla</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>audio</code></td>
+        <td>string</td>
+        <td>sí</td>
+        <td>Ruta relativa a un .mp3. Si el archivo no existe, el estado igual avanza pero no suena.</td>
+      </tr>
+      <tr>
+        <td><code>texto</code></td>
+        <td>string</td>
+        <td>no</td>
+        <td>Se muestra tal cual (sin HTML). Si falta, se limpia el texto anterior.</td>
+      </tr>
+      <tr>
+        <td><code>opciones</code></td>
+        <td>array</td>
+        <td>sí</td>
+        <td>Puede ser vacío. Solo los estados de metrónomo terminan por el fin del audio; un estado vacío cualquiera dejaría la simulación sin salida, salvo Reiniciar.</td>
+      </tr>
+      <tr>
+        <td><code>opciones[].texto</code></td>
+        <td>string</td>
+        <td>sí</td>
+        <td>Rótulo del botón</td>
+      </tr>
+      <tr>
+        <td><code>opciones[].siguiente</code></td>
+        <td>string</td>
+        <td>sí</td>
+        <td>Clave de un estado existente. Si apunta al mismo estado, la indicación se repite.</td>
+      </tr>
+      <tr>
+        <td><code>opciones[].clase</code></td>
+        <td>string</td>
+        <td>no</td>
+        <td><code>btn-opciones</code>, <code>btn-verde</code> o <code>btn-rojo</code>. Sin clase, el botón es azul.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+  <h3>Agregar o modificar una pantalla</h3>
+  <ol class="lista">
+    <li>Grabar el audio en MP3 y guardarlo en <code>src/</code>.</li>
+    <li>Agregar el estado en <code>historia</code> y apuntarle un botón desde otro estado.</li>
+    <li>Agregar la ruta del audio a <code>urlsToCache</code> en <code>service-worker.js</code>.</li>
+    <li>Subir <code>CACHE_NAME</code> (por ejemplo a <code>dea-simulador-v2</code>) para que los dispositivos descarguen la versión nueva.</li>
+    <li>Validar el grafo con el script de la sección Verificación.</li>
+  </ol>
+
+  <h3>Agregar un modo nuevo</h3>
+
+  <p>Hoy exige tres cambios: los estados del modo, un botón en<code>inicioOpciones</code> y un caso en <code>cambiarEstado</code> para 
+    el metrónomo. Para no tocar el motor, se podría agregar un campo <code>alTerminar</code> a cada estado de metrónomo, con la clave del estado que sigue.</p>
+    <br>
+<pre><code>
+metronomo: {
+  audio: &quot;./src/metronomo.mp3&quot;,
+  texto: &quot;Espere los 2 minutos para analizar el ritmo nuevamente&quot;,
+  opciones: [],
+  temporizador: true,
+  alTerminar: &quot;analisisRitmo&quot;
+}
+
+// En cambiarEstado: reemplaza las dos ramas por nombre
+if (nodo.temporizador) {
+  iniciarTemporizador();
+  audio.onended = () =&gt; {
+    ocultarTemporizador();
+    cambiarEstado(nodo.alTerminar);
+  };
+} else {
+  ocultarTemporizador();
+  audio.onended = null;
+}
+</code></pre>
+</section>
+
+
+<section id="pwa">
+
+
+  <h2>PWA y funcionamiento sin conexión</h2>
+
+  <h3>manifest.json</h3><div class="tabla">
+    <table>
+      <thead>
+        <tr>
+          <th>Campo</th>
+          <th>Valor</th>
+          <th>Observación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>name</code> / <code>short_name</code></td>
+          <td>unDEAenunaCAJA</td>
+          <td></td>
+          </tr>
+          <tr>
+            <td><code>start_url</code></td>
+            <td><code>.</code></td>
+            <td>Relativa a la ubicación del manifest</td>
+          </tr>
+          <tr>
+            <td><code>display</code></td>
+            <td><code>standalone</code></td>
+            <td>Se abre sin barra del navegador</td>
+          </tr>
+          <tr>
+            <td><code>background_color</code> / <code>theme_color</code></td>
+            <td><code>#000000</code></td>
+            <td>El meta <code>theme-color</code> de index.html es <code>#d32f2f</code></td>
+          </tr>
+          <tr>
+            <td><code>icons</code></td>
+            <td>icono-192.png (192×192) e icono-512.png (512×512)</td>
+            <td>Sin <code>purpose</code>: no declara variante maskable</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  <h3>service-worker.js</h3>
+  <div class="tabla">
+    <table>
+      <thead>
+        <tr>
+          <th>Evento</th>
+          <th>Comportamiento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>install</code></td>
+          <td>Abre la caché <code>CACHE_NAME</code> y ejecuta <code>cache.addAll(urlsToCache)</code>. Es atómico: si un solo archivo falla (404, red), 
+            la instalación entera falla y no queda nada guardado. No llama a <code>skipWaiting()</code>: una versión nueva espera hasta que la 
+            persona acepte la actualización.</td></tr><tr><td><code>activate</code></td>
+          <td>Borra toda caché cuyo nombre sea distinto de <code>CACHE_NAME</code>. No llama a <code>clients.claim()</code>: en la primera instalación,
+             la pestaña abierta no queda controlada hasta recargar.</td>
+        </tr>
+        <tr>
+          <td><code>fetch</code></td>
+          <td>Cache-first para todo: <code>caches.match(request).then(r =&gt; r || fetch(request))</code>. No hay caché dinámica: lo que no está en 
+            el precaché se pide a la red y no se guarda (por ejemplo <code>/favicon.ico</code>).</td>
+        </tr>
+        <tr>
+          <td><code>message</code></td>
+          <td>Si el dato es <code>&quot;SKIP_WAITING&quot;</code>, ejecuta <code>self.skipWaiting()</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  
+          <h3>Flujo de actualización</h3>
+          <ol class="lista">
+            <li>Se publica una versión con <code>CACHE_NAME</code> distinto. El navegador detecta que <code>service-worker.js</code> cambió y lo 
+              instala en segundo plano (nueva caché).</li>
+            <li>Cuando el worker nuevo queda <code>installed</code> y ya hay uno controlando la página, <code>index.js</code> muestra el 
+              cartel «Nueva versión disponible».</li>
+            <li><em>Actualizar</em> envía <code>SKIP_WAITING</code>; el worker nuevo se activa y borra la caché vieja.</li>
+            <li>El evento <code>controllerchange</code> recarga la página con los recursos nuevos.</li>
+          </ol>
+
+  <h3>Precaché (28 entradas)</h3>
+  <div class="tabla">
+    <table>
+      <thead>
+        <tr><th>Grupo</th><th>Archivos</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Aplicación</td>
+          <td><code>/</code>, <code>/index.html</code>, <code>/styles.css</code>, 
+            <code>/reset.css</code>, <code>/index.js</code>, <code>/manifest.json</code>, <code>/LICENSE</code>, <code>/README.md</code></td>
+          </tr>
+        <tr>
+          <td>Audios (13)</td>
+          <td>Todos los <code>src/*.mp3</code>, incluido <code>bucleComienzo.mp3</code> que la aplicación no usa</td>
+        </tr>
+        <tr>
+          <td>Imágenes</td>
+          <td><code>cajaWeb.webp</code>, <code>codesLogo.webp</code>, <code>titulounDEAenunacaja.webp</code>, <code>images/Flag_of_Argentina.svg.webp</code ></td >
+        </tr >
+        <tr>
+          <td>Íconos</td>
+          <td><Code>icons/icono-192.png</Code >, <Code >icons/icono-512.png</Code >,<Code >src/cajaWebIcon.ico</Code > (256 KB) </td >
+        </tr >
+      </tbody>
+    </table>
+  </div>
+
+  <ul class="lista">
+    <li>Verificado en esta revisión: las 28 rutas corresponden a archivos existentes.<Code>service-worker.js</Code > no figura en la 
+      lista, lo cual es correcto: el navegador lo gestiona aparte.</li>
+    <li>26 rutas empiezan con<Code>/</Code > y 2 no (<Code >src/titulounDEAenunacaja.webp</Code > y<Code>src/cajaWebIcon.ico</Code >). 
+      Con el sitio en la raíz del dominio todas resuelven bien. En una subcarpeta (por ejemplo GitHub Pages en<Code >/undeaenunacaja/</Code >) 
+      las 26 absolutas apuntan a la raíz del dominio, devuelven 404 y la instalación falla; habría que pasarlas a rutas relativas.</li >
+  </ul >
+  <h3>Procedimiento para publicar una versión </h3>
+    <ol class="lista">
+      <li>Modificar los archivos. Si se agregan, renombran o quitan recursos, actualizar<Code>urlsToCache</Code>.</li >
+      <li>Subir<Code>CACHE_NAME</Code>.</li >
+      <li>Publicar y abrir la aplicación con la versión anterior ya instalada: debe aparecer el cartel de actualización.</li >
+      <li>Revisar en las herramientas del navegador:<Em>Application → Service Workers</Em >(estado del worker) y<Em>Cache Storage</Em >
+      (28 entradas en la caché nueva, y sin la vieja).</li >
+      <li>Probar sin conexión: activar modo avión, recargar y recorrer un modo completo.</li >
+    </ol >
+  </div >
+</section>
+
+<section id="estilos">
+  <h2>Estilos, diseño y accesibilidad</h2>
+
+  <p>Interfaz oscura de un solo fondo, con botones grandes. Los valores están escritos de forma literal en los CSS (no hay variables). No se declara tipografía: se usa la del sistema, así la aplicación carga sin recursos externos.</p>
+  <h3>Paleta</h3>
+  <div class="paleta">
+    <div class="muestra"><div class="color" style="background:#333"></div><div class="datos"><b>Fondo</b>#333 · body, main, footer, pista del temporizador</div></div>
+    <div class="muestra"><div class="color" style="background:#f0e2e20a;border-bottom:1px solid #6c7d8f"></div><div class="datos"><b>Encabezado</b>#f0e2e20a (translúcido)</div></div>
+    <div class="muestra"><div class="color" style="background:#6c7d8f"></div><div class="datos"><b>Borde</b>#6c7d8f · encabezado y botones</div></div>
+    <div class="muestra"><div class="color" style="background:rgb(221,214,214)"></div><div class="datos"><b>Texto</b>rgb(221, 214, 214)</div></div>
+    <div class="muestra"><div class="color" style="background:#2c7ae0"></div><div class="datos"><b>button</b>#2c7ae0 · Iniciar, Reiniciar</div></div>
+    <div class="muestra"><div class="color" style="background:rgb(39,172,132)"></div><div class="datos"><b>.btn-opciones</b>rgb(39, 172, 132)</div></div>
+    <div class="muestra"><div class="color" style="background:red"></div><div class="datos"><b>.btn-rojo</b>red</div></div>
+    <div class="muestra"><div class="color" style="background:rgb(114,216,19)"></div><div class="datos"><b>.btn-verde</b>rgb(114, 216, 19) · texto rgb(39, 38, 38)</div></div>
+  </div>
+  <p>Colores del temporizador (asignados desde JavaScript): <code>#00c853</code> verde, <code>#ffd600</code> amarillo, <code>#d50000</code> rojo.</p>
+  <h3>Componentes</h3><div class="tabla"><table><thead><tr><th>Componente</th><th>Especificación</th></tr></thead><tbody><tr><td>Botón</td><td>Fondo <code>#2c7ae0</code>, texto <code>rgb(221,214,214)</code>, borde <code>1px #6c7d8f</code>, radio 5 px, relleno 10×20 px, margen 20 px, <code>1.2rem</code>, transición de fondo de 0,3 s</td></tr><tr><td>Texto de estado</td><td><code>#textoEstado</code>: <code>1.2rem</code>, centrado, relleno lateral del 10 %, margen inferior 30 px</td></tr><tr><td>Barra de tiempo</td><td>Pista de 80 % del ancho (máximo 400 px), alto 22 px, radio 30 px; el relleno cambia de ancho con transición de 0,1 s</td></tr><tr><td>Tiempo restante</td><td><code>3rem</code>, negrita, blanco, centrado</td></tr><tr><td>Cartel de actualización</td><td>Fijo al pie, fondo <code>#222</code>, texto blanco, relleno 10 px. Estilos en línea en el HTML</td></tr><tr><td>Pie</td><td>Flex centrado, fondo <code>#333</code>, relleno 20 px; bandera de 70 px con margen izquierdo de 10 px</td></tr></tbody></table></div>
+  <h3>Disposición y adaptación</h3>
+  <ul class="lista">
+    <li><code>html</code> y <code>body</code> con ancho 100 %, máximo <code>1024px</code> y centrados; <code>body</code> es una columna flex. <code>main</code> 
+      centra su contenido.</li>
+    <li>No hay media queries: la adaptación depende de unidades relativas y de <code>max-width: 100%</code> en las imágenes.</li>
+  </ul>
+
+</section>
+
+<section id="glosario">
+  <h2>Glosario</h2>
+<div class="tabla">
+  <table>
+    <thead>
+      <tr>
+        <th>Término</th>
+        <th>Significado</th>
+      </tr></thead><tbody><tr>
+        <td>DEA / DESA</td>
+        <td>Desfibrilador Externo Automático / Semiautomático. En el automático el equipo entrega la descarga por sí solo;
+           en el semiautomático la persona debe accionarla.</td>
+          </tr>
+          <tr>
+            <td>Ritmo desfibrilable / no desfibrilable</td>
+            <td>Ritmo cardíaco en el que la descarga está indicada / no está indicada.</td>
+          </tr>
+          <tr>
+            <td>RCP</td>
+            <td>Reanimación cardiopulmonar. El simulador marca ciclos de 2 minutos entre análisis de ritmo.</td>
+          </tr>
+          <tr>
+            <td>PWA</td>
+            <td>Aplicación web progresiva: se instala desde el navegador y puede funcionar sin conexión.</td>
+          </tr>
+          <tr>
+            <td>Service worker</td>
+            <td>Script del navegador que intercepta las solicitudes de la página y gestiona la caché.</td>
+          </tr>
+          <tr>
+            <td>Precaché / cache-first</td>
+            <td>Guardar archivos en la instalación / responder desde la caché antes de consultar la red.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="fila">
+    <img class="bandera" src="src/images/Flag_of_Argentina.svg.webp" alt="Bandera de Argentina">
+  </div>
+  <p><i>Desarrollado por Argentinos</i></p>
+  <p>Licencia GPL v3 · TSF chimango-lp · La Pampa · 2026</p>
+</footer>
+
+
+</body>
+</html>

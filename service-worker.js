@@ -1,13 +1,16 @@
-const CACHE_NAME = "dea-simulador-v1";
+const CACHE_NAME = "dea-simulador-v1"; // Aqui va si cambian algo importante, para que se borre la cache vieja y se cree una nueva
 
 const urlsToCache = [
   "/",
   "/index.html",
+  "/documentacion.html",
+  "/styles-documentacion.css",
   "/styles.css",
   "/reset.css",
   "/index.js",
   "/LICENSE",
   "/README.md",
+  "/manifest.json",
 
   // audios
   "/src/analizandoRitmo.mp3",
@@ -25,17 +28,16 @@ const urlsToCache = [
   "/src/ritmoNoDesfibrilable.mp3",
 
   //imagenes
-  "/src/cajaWeb.webp",
-  "/src/codesLogo.webp",
-  "src/titulounDEAenunacaja.webp",
+  "/src/images/cajaWeb.webp",
+  "/src/images/titulounDEAenunacaja.webp",
   "/src/images/Flag_of_Argentina.svg.webp",
-  "/manifest.json",
+  "/src/images/cajaWebIcon.ico",
+  
 
   //iconos
   "/icons/icono-192.png",
-  "/icons/icono-512.png",
-  "src/cajaWebIcon.ico"
-
+  "/icons/icono-512.png"
+  
 ];
 
 // instalar

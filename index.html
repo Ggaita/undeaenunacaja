@@ -1,21 +1,32 @@
 <!DOCTYPE html>
+
 <!-- LA siguiente aplicación WEb fue desarrollada entre un equipo de Tecnicos y Simulacionistas Argentinos y Pampeanos, buscando romper con una estructura cerrada,  
- desarrollando artefactos que cunmplan con la función de simular un Desfribrilador Automatico/Semiautomatico Externo con Hardware/Software libre, donde planteamos
- las 4 liberetades, usarlo libremente para cualquier cosa (Libertad 0), estudiarlo y modificarlo libremente (Libertad 1), Reproducirlo libremente (Libertad 2) y
- mejorarlo libremente y compartir dichas modificaciones (Libertad 3) -->
+ desarrollando artefactos que cumplan con la función de simular un Desfribrilador Automatico/Semiautomatico Externo con Hardware/Software libre, donde planteamos
+ las 4 libertades, 
+ Usarlo libremente para cualquier cosa (Libertad 0),
+ Estudiarlo y modificarlo libremente (Libertad 1), 
+ Reproducirlo libremente (Libertad 2)
+ Mejorarlo libremente y compartir dichas modificaciones (Libertad 3) -->
+
+
 <html lang="es">
 <head>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#d32f2f">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link type="text/css" rel="stylesheet" href="styles.css">
     <link type="text/css" rel="stylesheet" href="reset.css">
+    <link rel="icon" type="image/png" href="./src/images/cajaWebIcon.ico">
     <title>unDEAenunaCaja</title>
 </head>
+
 <body>
     <header>
-        <img src="./src/titulounDEAenunacaja.webp" alt="Logo de unDEAenunaCaja" id="logo">
+        <div>
+            <a href="/documentacion.html"><img src="./src/images/titulounDEAenunacaja.webp" alt="Logo de unDEAenunaCaja" id="logo"></a>  
+        </div>
     </header>
     <main>
         <button id="btnInicio" onclick="empezar()">Iniciar</button>
@@ -26,7 +37,7 @@
             <div id="barraProgreso"></div>
         </div>
         <div id="tiempoRestante">02:00</div>
-        <button id="btnReiniciar" onclick="reiniciar()" style="display:none;">Reiniciar</button>       
+        <button id="btnReiniciar" onclick="reiniciar()" style="display:none;">Reiniciar</button>     
     </main>
     <footer>
         <p><i>Desarrollado por Argentinos</i></p>
