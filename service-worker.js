@@ -1,4 +1,4 @@
-const CACHE_NAME = "dea-simulador-v1"; // Aqui va si cambian algo importante, para que se borre la cache vieja y se cree una nueva
+const CACHE_NAME = "dea-simulador-v1.0"; // Aqui va si cambian algo importante, para que se borre la cache vieja y se cree una nueva
 
 const urlsToCache = [
   "/",
@@ -64,10 +64,32 @@ self.addEventListener("activate", event => {
 });
 
 // fetch (cache first)
+// FETCH - Cache first con recuperación ante errores
+
 self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(event.request);
+
+      if (cached) {
+        return cached;
+      }
+
+      try {
+        return await fetch(event.request);
+      } catch (error) {
+        console.error(
+          "Error al recuperar recurso:",
+          event.request.url,
+          error
+        );
+
+        return Response.error();
+      }
+    })()
   );
 });
 
