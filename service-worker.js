@@ -1,4 +1,4 @@
-const CACHE_NAME = "dea-simulador-v1.0"; // Aqui va si cambian algo importante, para que se borre la cache vieja y se cree una nueva
+const CACHE_NAME = "dea-simulador-v1.1"; // Aqui va si cambian algo importante, para que se borre la cache vieja y se cree una nueva
 
 const urlsToCache = [
   "/",
