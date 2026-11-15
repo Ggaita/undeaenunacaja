@@ -1,5 +1,7 @@
-const CACHE_NAME = "dea-simulador-v1.1"; // Aqui va si cambian algo importante, para que se borre la cache vieja y se cree una nueva
 
+const CACHE_NAME = "dea-simulador-v1.2";
+
+// Recursos necesarios para funcionar sin conexión
 const urlsToCache = [
   "/",
   "/index.html",
@@ -12,7 +14,7 @@ const urlsToCache = [
   "/README.md",
   "/manifest.json",
 
-  // audios
+  // Audios
   "/src/analizandoRitmo.mp3",
   "/src/bucleComienzo.mp3",
   "/src/colocarParches2.mp3",
@@ -27,62 +29,101 @@ const urlsToCache = [
   "/src/ritmoDesfibrilableAutomatico.mp3",
   "/src/ritmoNoDesfibrilable.mp3",
 
-  //imagenes
+  // Imágenes
   "/src/images/cajaWeb.webp",
   "/src/images/titulounDEAenunacaja.webp",
   "/src/images/Flag_of_Argentina.svg.webp",
   "/src/images/cajaWebIcon.ico",
-  
 
-  //iconos
+  // Iconos
   "/icons/icono-192.png",
   "/icons/icono-512.png"
-  
 ];
 
-// instalar
+// INSTALACIÓN
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(async cache => {
+      for (const url of urlsToCache) {
+        const response = await fetch(url, {
+          redirect: "follow"
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `No se pudo guardar ${url}: ${response.status}`
+          );
+        }
+
+        // Evitar guardar respuestas con redirecciones
+        // sin normalizarlas.
+        const cleanResponse = new Response(
+          await response.blob(),
+          {
+            status: 200,
+            headers: response.headers
+          }
+        );
+
+        await cache.put(url, cleanResponse);
+      }
+    })
   );
 });
 
-// activar y limpiar cache viejo
+// ACTIVACIÓN
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      )
-    )
+    (async () => {
+      const keys = await caches.keys();
+
+      await Promise.all(
+        keys
+          .filter(key =>
+            key.startsWith("dea-simulador-") &&
+            key !== CACHE_NAME
+          )
+          .map(key => caches.delete(key))
+      );
+
+      await self.clients.claim();
+    })()
   );
 });
 
-// fetch (cache first)
-// FETCH - Cache first con recuperación ante errores
-
+// FETCH
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      const cached = await cache.match(event.request);
 
-      if (cached) {
-        return cached;
+      // En navegaciones, buscar por la ruta del archivo.
+      if (event.request.mode === "navigate") {
+        const url = new URL(event.request.url);
+
+        const path =
+          url.pathname === "/" ? "/index.html" : url.pathname;
+
+        const cached = await cache.match(path);
+
+        if (cached && !cached.redirected) {
+          return cached;
+        }
+      } else {
+        const cached = await cache.match(event.request);
+
+        if (cached && !cached.redirected) {
+          return cached;
+        }
       }
 
       try {
         return await fetch(event.request);
       } catch (error) {
         console.error(
-          "Error al recuperar recurso:",
+          "Error al recuperar:",
           event.request.url,
           error
         );
@@ -93,7 +134,7 @@ self.addEventListener("fetch", event => {
   );
 });
 
-// recibir mensaje para actualizar
+// ACTUALIZACIÓN
 self.addEventListener("message", event => {
   if (event.data === "SKIP_WAITING") {
     self.skipWaiting();
