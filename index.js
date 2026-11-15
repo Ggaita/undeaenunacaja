@@ -67,7 +67,7 @@ const historia = {
     texto: "Seleccione Ritmo:",
     opciones: [
       { texto: "No Desfibrilable", siguiente: "ritmoNoDesfibrilableAutomatico", clase: "btn-verde"},
-      { texto: "Desfibrilable", siguiente: "ritmoDesfibrilableAutomaico", clase: "btn-verde"}
+      { texto: "Desfibrilable", siguiente: "ritmoDesfibrilableAutomatico", clase: "btn-verde"}
     ]
   },
 
